@@ -19,10 +19,7 @@ Measurement = Base.classes.measurement
 app = Flask(__name__)
 
 
-# This function called `calc_temps` will accept start date and end date in the format '%Y-%m-%d' 
-# and return the minimum, average, and maximum temperatures for that range of dates
-
-
+#1.List all routes that are available.
 
 @app.route("/")
 def home():
@@ -36,14 +33,16 @@ def home():
         f"/api/v1.0/<start>/<end><br/>"
     )
 
-#1. Convert the query results to a dictionary using date as the key and prcp as the value. 
+#2. Convert the query results to a dictionary using date as the key and prcp as the value. 
 #Return the JSON representation of your dictionary.
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
     
     session = Session(engine)
+   
     
+    #retrieve date and prcp data and display in dictionary
     results = session.query(Measurement.date, Measurement.prcp).all()
     
     session.close()
@@ -57,13 +56,14 @@ def precipitation():
 
     return jsonify(precipitation)
 
-#2. Return a JSON list of stations from the dataset.
+#3. Return a JSON list of stations from the dataset.
 
 @app.route("/api/v1.0/stations")
 def stations():
     
     session = Session(engine)
     
+    #retrieve station information and display as dictionary
     results = session.query(Station.station, Station.name, Station.latitude, Station.longitude, Station.elevation).all()
     
     session.close()
@@ -80,7 +80,7 @@ def stations():
 
     return jsonify(name)
 
-#3. Query the dates and temperature observations of the most active station for the last year of data.
+#4. Query the dates and temperature observations of the most active station for the last year of data.
 #Return a JSON list of temperature observations (TOBS) for the previous year.
 
 @app.route("/api/v1.0/tobs")
@@ -125,7 +125,7 @@ def tobs():
     return jsonify(station_data)
 
 
-#4. Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
+#5. Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
 #When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
 #When given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive.
 
@@ -157,6 +157,9 @@ def start(start):
     return jsonify(cal_list)
 
 
+#6.Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
+#When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
+#When given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive.
 
 @app.route("/api/v1.0/<start>/<end>")
 def start_end(start, end):
