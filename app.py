@@ -22,21 +22,7 @@ app = Flask(__name__)
 # This function called `calc_temps` will accept start date and end date in the format '%Y-%m-%d' 
 # and return the minimum, average, and maximum temperatures for that range of dates
 
-def cal_temps(start_date, end_date):
-    
-    def calc_temps(start_date, end_date):
-        """TMIN, TAVG, and TMAX for a list of dates.
-    
-    Args:
-        start_date (string): A date string in the format %Y-%m-%d
-        end_date (string): A date string in the format %Y-%m-%d
-        
-    Returns:
-        TMIN, TAVE, and TMAX
-        """
-    
-    return session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-        filter(Measurement.date >= start_date).filter(Measurement.date <= end_date).all()
+
 
 @app.route("/")
 def home():
@@ -174,25 +160,33 @@ def start(start):
 
 @app.route("/api/v1.0/<start>/<end>")
 def start_end(start, end):
-   
     
-    #get start and end date range
-    start_end = calc_temps(start, end)
+    session = Session(engine)
+    
+    #date user enters
+    start_date = dt.datetime.strptime(start, "%Y-%m-%d")
+    end_date = dt.datetime.strptime(end, "%Y-%m-%d")
+    
+    calculations = session.query(func.min(Measurement.tobs), func.round(func.avg(Measurement.tobs)), func.max(Measurement.tobs)).\
+                  filter(Measurement.date >= start_date).filter(Measurement.date <= end_date).all()
+                    
+    
+    session.close()
     
     
-    #append to a list and display
+    #append calculations to a list and display
     cal_list = []
     for row in calculations:
-        date_dict = {"start_date": start, "end_date": end}  
+        date_dict = {"Start Date": start, "End Date": end}
         cal_list.append(date_dict)
         cal_list.append({"Minimum Temperature": calculations[0][0]})
         cal_list.append({"Average Temperature": calculations[0][1]})
         cal_list.append({"Maximum Temperature": calculations[0][2]})
                                  
-    
+                   
     return jsonify(cal_list)
-
-
-
+   
+    
+   
 if __name__ == "__main__":
     app.run(debug=True)
