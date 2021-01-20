@@ -142,8 +142,6 @@ def start(start):
     
     session.close()
     
-    #start_date = calc_temps(start)
-    
     #append calculations to a list and display
     cal_list = []
     for row in calculations:
